@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Questões - Agressão e Defesa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8 font-sans">
+    <div id="app" class="max-w-4xl mx-auto">
+        
+        <!-- Tela Inicial -->
+        <div id="home-screen" class="bg-white p-8 rounded-xl shadow-sm text-center">
+            <h1 class="text-3xl font-bold text-blue-900 mb-4">Banco de Questões: Agressão e Defesa</h1>
+            <p class="text-gray-600 mb-8">Treine seus conhecimentos com correção imediata e justificativas completas.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="border border-blue-200 bg-blue-50 p-6 rounded-lg text-left">
+                    <h3 class="font-bold text-blue-800 text-lg mb-2">Simulado 1: Integração e Prova Anterior</h3>
+                    <p class="text-sm text-gray-600 mb-4">12 Questões • Dificuldade Média • Foco: Imunidade Inata, Adaptativa e Microbiologia.</p>
+                    <button onclick="startQuiz()" class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">Iniciar Simulado 1</button>
+                </div>
+                <!-- Espaço para futuros simulados -->
+                <div class="border border-gray-200 bg-gray-50 p-6 rounded-lg text-left opacity-60">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Simulado 2 (Em breve)</h3>
+                    <p class="text-sm text-gray-600 mb-4">12 Questões • Revisão Abrangente.</p>
+                    <button disabled class="w-full bg-gray-300 text-gray-600 px-4 py-2 rounded font-semibold cursor-not-allowed">Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Questões -->
+        <div id="quiz-screen" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-sm font-semibold text-gray-500">Questão <span id="current-q-num">1</span> de <span id="total-q-num">12</span></span>
+                <span id="score-display" class="text-sm font-bold text-blue-600">Acertos: 0</span>
+            </div>
+            
+            <!-- Barra de progresso -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            
+            <h2 id="question-text" class="text-lg font-medium text-gray-800 mb-6 leading-relaxed"></h2>
+            
+            <div id="options-container" class="space-y-3">
+                <!-- Alternativas serão injetadas aqui -->
+            </div>
+
+            <div id="explanation-box" class="hidden mt-6 p-5 rounded-lg bg-gray-50 border border-gray-200 text-sm text-gray-800 space-y-3">
+                <!-- Explicações serão injetadas aqui -->
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" class="hidden bg-blue-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-800 transition">Próxima Questão</button>
+            </div>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div id="result-screen" class="hidden bg-white p-8 rounded-xl shadow-sm text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Simulado Concluído!</h2>
+            <p class="text-lg text-gray-600 mb-2">Você acertou <span id="final-correct" class="font-bold text-blue-600"></span> de 12 questões.</p>
+            <p class="text-3xl font-bold text-gray-900 mb-8">Nota Final: <span id="final-score"></span> / 10</p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Voltar ao Início</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "Masto Célio, 27 anos, sofreu uma laceração profunda na perna durante uma trilha. Nas primeiras 12 horas apresentou dor, calor local, rubor e secreção purulenta. O hemograma revelou aumento significativo de células com núcleo multilobulado e grânulos citoplasmáticos contendo enzimas hidrolíticas. Culturas iniciais indicaram bactérias Gram-positivas. Baseado nisso, assinale a alternativa correta:",
+                options: [
+                    { id: 'A', text: "O padrão sugere resposta adaptativa. Linfócitos T são predominantes nas primeiras horas." },
+                    { id: 'B', text: "O padrão sugere resposta adaptativa. Neutrófilos são predominantes nas primeiras horas." },
+                    { id: 'C', text: "O padrão sugere resposta inata. Neutrófilos são predominantes nas primeiras horas." },
+                    { id: 'D', text: "O padrão sugere resposta inata. Macrófagos são predominantes nas primeiras horas." },
+                    { id: 'E', text: "O padrão sugere resposta adaptativa. Linfócitos B são predominantes nas primeiras horas." }
+                ],
+                answer: 'C',
+                explanation: {
+                    main: "A resposta nas primeiras 12 horas contra bactérias e com sinais agudos de inflamação caracteriza a imunidade inata. As células multilobuladas descritas no hemograma são os neutrófilos, a primeira linha celular a chegar no local da lesão.",
+                    A: "Incorreta. Linfócitos T fazem parte da imunidade adaptativa, que demora dias para ser ativada.",
+                    B: "Incorreta. Neutrófilos não fazem parte da resposta adaptativa, mas sim da inata.",
+                    C: "Correta. Imunidade inata e neutrófilos são a principal resposta aguda.",
+                    D: "Incorreta. Embora macrófagos sejam da imunidade inata, eles não predominam nas primeiras 12 horas; os neutrófilos chegam primeiro.",
+                    E: "Incorreta. Linfócitos B são da resposta adaptativa."
+                }
+            },
+            {
+                text: "Uma criança de 7 anos apresenta episódios recorrentes de alergia respiratória. Exames laboratoriais revelaram leucocitose com predomínio de células com grânulos citoplasmáticos grandes, acidófilos, e receptores de IgE. Qual célula está em maior quantidade?",
+                options: [
+                    { id: 'A', text: "Basófilo" },
+                    { id: 'B', text: "Neutrófilo" },
+                    { id: 'C', text: "Eosinófilo" },
+                    { id: 'D', text: "Mastócito" },
+                    { id: 'E', text: "Monócito" }
+                ],
+                answer: 'C',
+                explanation: {
+                    main: "As células descritas com grânulos acidófilos e associadas a alergias respiratórias e parasitoses são os eosinófilos.",
+                    A: "Incorreta. Basófilos possuem grânulos basofílicos (coram-se em azul/roxo), não acidófilos.",
+                    B: "Incorreta. Neutrófilos atuam em infecções bacterianas agudas e não têm grânulos predominantemente acidófilos.",
+                    C: "Correta. Eosinófilos têm grânulos acidófilos e participam ativamente da resposta alérgica.",
+                    D: "Incorreta. Mastócitos também participam da alergia e têm receptores IgE, mas são células teciduais e não justificam a leucocitose (células circulantes).",
+                    E: "Incorreta. Monócitos são células agranulomatosas precursoras de macrófagos."
+                }
+            },
+            {
+                text: "Linféia, 23 anos, estudante de Medicina, apresentou quadro de fadiga persistente após infecção viral recente. O exame histológico do timo mostrou córtex espesso com intensa atividade tímica, e a medula óssea apresentava aumento da atividade hematopoética. Qual sequência funcional descreve corretamente a origem, maturação e ativação dos linfócitos T observados na paciente?",
+                options: [
+                    { id: 'A', text: "Produção na medula óssea → maturação no timo → ativação nos linfonodos" },
+                    { id: 'B', text: "Produção no timo → maturação na medula óssea → ativação no baço" },
+                    { id: 'C', text: "Produção na medula óssea → ativação no timo → maturação nos folículos linfáticos" },
+                    { id: 'D', text: "Maturação nos folículos linfáticos → ativação no timo → diferenciação na medula óssea" },
+                    { id: 'E', text: "Produção na medula óssea → maturação no timo → ativação na zona paracortical do próprio timo" }
+                ],
+                answer: 'A',
+                explanation: {
+                    main: "Os linfócitos T são produzidos na medula óssea (como precursores), migram para o timo onde amadurecem (educação tímica) e, após maduros, migram para os órgãos linfoides secundários (como linfonodos) onde são ativados pelos antígenos.",
+                    A: "Correta. Medula óssea (produção) -> Timo (maturação) -> Linfonodo/Baço (ativação).",
+                    B: "Incorreta. A produção ocorre na medula, e a maturação no timo.",
+                    C: "Incorreta. O timo não é local de ativação por antígenos estranhos, mas de maturação.",
+                    D: "Incorreta. Folículos linfáticos não são locais de maturação primária de células T.",
+                    E: "Incorreta. A ativação ocorre nos órgãos secundários; o timo não possui zona paracortical para ativação de resposta imune periférica."
+                }
+            },
+            {
+                text: "Um paciente de 35 anos apresenta uma celulite bacteriana na perna. Horas após o trauma, observa-se rubor, calor, dor, edema e leve febre. Sobre os mecanismos celulares e moleculares da inflamação aguda, é correto afirmar:",
+                options: [
+                    { id: 'A', text: "A vasodilatação é causada primariamente por IL-10 e TGF-β, resultando em calor e rubor." },
+                    { id: 'B', text: "Ocorre opsonização mediada exclusivamente por linfócitos T CD8+ para facilitar a fagocitose." },
+                    { id: 'C', text: "Mediadores vasoativos como histamina e óxido nítrico promovem vasodilatação e aumento da permeabilidade vascular." },
+                    { id: 'D', text: "A fase de resolução da inflamação é mantida pela persistência de altas concentrações de TNF-α." },
+                    { id: 'E', text: "Neutrófilos chegam ao local infeccioso sem necessidade de quimiocinas ou de adesão ao endotélio." }
+                ],
+                answer: 'C',
+                explanation: {
+                    main: "Os sinais cardinais da inflamação (rubor, calor, edema) são causados por mediadores vasoativos (como histamina, bradicinina e óxido nítrico) que dilatam os vasos e aumentam sua permeabilidade.",
+                    A: "Incorreta. IL-10 e TGF-β são citocinas anti-inflamatórias (promovem resolução), não causam vasodilatação inicial.",
+                    B: "Incorreta. Opsonização é feita por anticorpos (IgG) e proteínas do complemento (C3b), não por células T CD8+.",
+                    C: "Correta. Histamina e NO dilatam os vasos, gerando rubor (fluxo sanguíneo) e edema (permeabilidade).",
+                    D: "Incorreta. TNF-α é pró-inflamatório; sua persistência mantém a inflamação, dificultando a resolução.",
+                    E: "Incorreta. Neutrófilos dependem de quimiocinas (como CXCL8) e moléculas de adesão (selectinas e integrinas) para realizar a diapedese."
+                }
+            },
+            {
+                text: "Um rapaz de 22 anos recebeu um transplante de rim. Dias depois, apresentou rejeição aguda com infiltrado de linfócitos T citotóxicos. Sobre as moléculas de MHC expressas no tecido, é correto afirmar:",
+                options: [
+                    { id: 'A', text: "As moléculas de MHC de classe I apresentam antígenos endógenos e ativam linfócitos T CD8+." },
+                    { id: 'B', text: "As moléculas de MHC de classe I apresentam antígenos exógenos e ativam linfócitos T CD4+." },
+                    { id: 'C', text: "As moléculas de MHC de classe II ativam linfócitos T CD8+ e induzem fagocitose neutrofílica imediata." },
+                    { id: 'D', text: "A rejeição do enxerto é exclusivamente mediada pelo sistema complemento, via alternativa." },
+                    { id: 'E', text: "O reconhecimento ocorre pela ausência de moléculas do MHC de classe I no órgão transplantado." }
+                ],
+                answer: 'A',
+                explanation: {
+                    main: "As moléculas de MHC Classe I estão presentes em todas as células nucleadas do corpo (incluindo o órgão transplantado) e apresentam antígenos endógenos aos linfócitos T CD8+ (citotóxicos).",
+                    A: "Correta. MHC I apresenta para T CD8+, desencadeando a resposta citotóxica que destrói o enxerto.",
+                    B: "Incorreta. MHC I ativa T CD8+, não CD4+ (este é ativado por MHC II).",
+                    C: "Incorreta. MHC II ativa T CD4+. Neutrófilos não dependem de MHC para fagocitose.",
+                    D: "Incorreta. Rejeição celular aguda é mediada principalmente por linfócitos T da imunidade adaptativa.",
+                    E: "Incorreta. Células NK atacam células *sem* MHC I, mas a rejeição com T CD8+ descrita ocorre pelo reconhecimento de MHC I alogênico (do doador)."
+                }
+            },
+            {
+                text: "Durante os anos de 2022 a 2024, o Brasil apresentou aumento expressivo de casos de dengue. O número de óbitos acompanhou a tendência dos casos confirmados. Com base na epidemiologia e imunologia das arboviroses, a resposta imune secundária à infecção por um sorotipo diferente de dengue pode agravar a doença devido a:",
+                options: [
+                    { id: 'A', text: "Falha completa na produção de anticorpos pela medula óssea." },
+                    { id: 'B', text: "Ativação excessiva de eosinófilos liberando histamina sistemicamente." },
+                    { id: 'C', text: "Aumento da virulência do vírus mediada pelo sistema complemento via clássica isolada." },
+                    { id: 'D', text: "Fenômeno de amplificação dependente de anticorpos (ADE), onde anticorpos prévios facilitam a entrada do novo vírus nos macrófagos." },
+                    { id: 'E', text: "Destruição do timo pelo vírus da dengue, impedindo a resposta imune celular." }
+                ],
+                answer: 'D',
+                explanation: {
+                    main: "Na dengue, a infecção por um segundo sorotipo pode causar doença grave devido ao ADE (Antibody-Dependent Enhancement). Anticorpos criados contra o primeiro sorotipo ligam-se ao novo vírus, mas não o neutralizam; em vez disso, facilitam sua entrada e replicação em macrófagos via receptores Fc.",
+                    A: "Incorreta. A medula continua produzindo anticorpos, o problema é a *qualidade/especificidade* cruzada deles.",
+                    B: "Incorreta. Eosinófilos e histamina não são o principal mecanismo patogênico da dengue grave.",
+                    C: "Incorreta. O vírus não aumenta sua virulência por conta do complemento.",
+                    D: "Correta. O ADE explica a fisiopatologia da dengue grave em infecções secundárias heterólogas.",
+                    E: "Incorreta. O vírus da dengue não tem tropismo destrutivo pelo timo."
+                }
+            },
+            {
+                text: "Um paciente de 42 anos, trabalhador rural de área endêmica, apresenta lesões ulceradas na mucosa oral, tosse crônica e emagrecimento, confirmando-se infecção por *Paracoccidioides brasiliensis*. Sobre a classificação desse fungo, é correto afirmar:",
+                options: [
+                    { id: 'A', text: "É um fungo oportunista, pois só afeta pessoas previamente imunossuprimidas." },
+                    { id: 'B', text: "É um fungo primário (patógeno verdadeiro), capaz de causar doença sistêmica em indivíduos imunocompetentes expostos ao ambiente." },
+                    { id: 'C', text: "É um fungo endógeno da microbiota oral que proliferou devido ao desequilíbrio nutricional." },
+                    { id: 'D', text: "A infecção ocorreu por ingestão de carne contaminada com o fungo." },
+                    { id: 'E', text: "Se trata de uma bactéria gram-negativa, e não de um fungo." }
+                ],
+                answer: 'B',
+                explanation: {
+                    main: "O Paracoccidioides brasiliensis é um patógeno primário dimórfico. Ele possui fatores de virulência que permitem invadir tecidos saudáveis de indivíduos normais após a inalação de seus propágulos encontrados no solo.",
+                    A: "Incorreta. Ele não requer imunossupressão prévia (como o HIV) para causar doença, logo não é classificado primariamente como oportunista.",
+                    B: "Correta. Fungos patogênicos primários causam infecção em hospedeiros normais expostos à área endêmica.",
+                    C: "Incorreta. P. brasiliensis não faz parte da microbiota normal do corpo; ele vive no ambiente (solo).",
+                    D: "Incorreta. A via de infecção é inalatória (pulmão), espalhando-se depois para mucosas.",
+                    E: "Incorreta. É um fungo."
+                }
+            },
+            {
+                text: "Gestante iniciou o pré-natal e a sorologia para Toxoplasmose revelou IgM positivo e IgG positivo. O laudo indicou 'baixa avidez' dos anticorpos IgG. Como deve ser interpretado esse resultado e que orientação médica está correta?",
+                options: [
+                    { id: 'A', text: "Infecção antiga. Não há risco para o feto, pois a mãe tem imunidade." },
+                    { id: 'B', text: "Infecção recente (aguda). Há risco de transmissão transplacentária." },
+                    { id: 'C', text: "Falso positivo. Apenas o IgM importa na gravidez." },
+                    { id: 'D', text: "Infecção adquirida exclusivamente por ingestão de leite pasteurizado." },
+                    { id: 'E', text: "Imunidade conferida por vacina prévia contra Toxoplasmose." }
+                ],
+                answer: 'B',
+                explanation: {
+                    main: "A presença de IgM positivo indica resposta recente. O IgG de 'baixa avidez' confirma que a infecção é recente (geralmente nos últimos 3 a 4 meses), pois a maturação da afinidade do anticorpo (alta avidez) demora a ocorrer. Na gestação, infecções recentes oferecem risco de transmissão ao feto.",
+                    A: "Incorreta. Se fosse antiga, a avidez do IgG seria ALTA e o IgM estaria negativo.",
+                    B: "Correta. Baixa avidez de IgG + IgM positivo = Infecção aguda.",
+                    C: "Incorreta. O IgG com teste de avidez é crucial para datar a infecção e tomar decisões clínicas na gestação.",
+                    D: "Incorreta. Toxoplasmose transmite-se por carne mal cozida (bradizoítos) ou oocistos (fezes de gato).",
+                    E: "Incorreta. Não existe vacina para humanos contra Toxoplasmose."
+                }
+            },
+            {
+                text: "Um paciente com pneumonia teve macrófagos alveolares coletados. Foi identificado que eles utilizam receptores para reconhecer especificamente manose e fucose na parede bacteriana, açúcares não encontrados nas células do hospedeiro humano. Esse receptor é um exemplo de:",
+                options: [
+                    { id: 'A', text: "Anticorpo secretor (IgA)." },
+                    { id: 'B', text: "Receptor de Reconhecimento de Padrão (PRR), especificamente receptor de manose." },
+                    { id: 'C', text: "Receptor de Célula T (TCR)." },
+                    { id: 'D', text: "Molécula de MHC de Classe II." },
+                    { id: 'E', text: "Receptor Scavenger para LDL oxidada." }
+                ],
+                answer: 'B',
+                explanation: {
+                    main: "As células da imunidade inata utilizam Receptores de Reconhecimento de Padrões (PRRs) para identificar Padrões Moleculares Associados a Patógenos (PAMPs). O receptor de manose de macrófagos é um PRR clássico.",
+                    A: "Incorreta. IgA é imunidade adaptativa e não é fixo primariamente como receptor de macrófago para fagocitose inicial inespecífica.",
+                    B: "Correta. Reconhece manose (PAMP) garantindo a fagocitose da bactéria sem atacar o hospedeiro.",
+                    C: "Incorreta. O TCR reconhece peptídeos apresentados por MHC, não açúcares diretamente na parede do micróbio.",
+                    D: "Incorreta. MHC II APRESENTA o antígeno, não reconhece o micróbio intacto.",
+                    E: "Incorreta. Receptores Scavenger reconhecem lipoproteínas oxidadas ou modificadas, não especificamente resíduos terminais de manose."
+                }
+            },
+            {
+                text: "Em relação ao sistema linfático humano, os fluidos dos tecidos retornam ao sangue através de ductos linfáticos. Assinale a alternativa correta sobre a drenagem final da linfa:",
+                options: [
+                    { id: 'A', text: "Não há assimetria funcional; ambos os ductos drenam 50% do corpo." },
+                    { id: 'B', text: "O ducto linfático direito drena toda a linfa do abdome e membros inferiores." },
+                    { id: 'C', text: "O ducto torácico desemboca na junção da veia jugular interna direita com a subclávia direita." },
+                    { id: 'D', text: "O ducto torácico drena apenas os membros inferiores." },
+                    { id: 'E', text: "O ducto torácico drena a maior parte do corpo e desemboca na junção da veia jugular interna esquerda com a subclávia esquerda." }
+                ],
+                answer: 'E',
+                explanation: {
+                    main: "A drenagem linfática humana é assimétrica. O Ducto Linfático Direito drena apenas o membro superior direito, e a metade direita da cabeça, pescoço e tórax. O Ducto Torácico drena todo o resto do corpo (membros inferiores, abdome, lado esquerdo do tórax, braço e cabeça) desembocando na junção venosa esquerda.",
+                    A: "Incorreta. É altamente assimétrica (Ducto torácico drena ~75%).",
+                    B: "Incorreta. O abdome e pernas vão para o Ducto Torácico via cisterna do quilo.",
+                    C: "Incorreta. Ele desemboca à esquerda.",
+                    D: "Incorreta. Drena abdome, braço esquerdo e cabeça esquerda também.",
+                    E: "Correta. É o principal vaso linfático do corpo."
+                }
+            },
+            {
+                text: "Lactente de 8 meses apresenta placas esbranquiçadas aderidas à mucosa oral (candidose pseudomembranosa) após o uso prolongado de antibióticos de amplo espectro para otite. Qual é a principal explicação biológica para o surgimento dessa lesão fúngica?",
+                options: [
+                    { id: 'A', text: "O antibiótico ataca a parede celular do fungo, causando as placas brancas de fungos mortos." },
+                    { id: 'B', text: "O antibiótico induz mutações no fungo que o tornam altamente virulento." },
+                    { id: 'C', text: "A microbiota bacteriana residente é eliminada pelo antibiótico, reduzindo a competição por nutrientes e permitindo a proliferação excessiva da Candida spp." },
+                    { id: 'D', text: "O antibiótico suprime diretamente a produção de anticorpos, causando imunodeficiência primária." },
+                    { id: 'E', text: "A infecção fúngica é uma coincidência, pois Candida não habita mucosas de seres humanos saudáveis." }
+                ],
+                answer: 'C',
+                explanation: {
+                    main: "A Candida spp. é um fungo comensal da microbiota normal. Antibióticos eliminam bactérias sensíveis, que normalmente competem por espaço e nutrientes. Sem essas bactérias, o fungo sofre supercrescimento (infecção oportunista).",
+                    A: "Incorreta. Antibióticos bacterianos não têm ação contra a parede celular de fungos (que é feita de quitina/glucano, diferente do acrossomo bacteriano).",
+                    B: "Incorreta. Não há indução de mutação no fungo.",
+                    C: "Correta. O princípio ecológico da exclusão competitiva foi quebrado.",
+                    D: "Incorreta. Antibióticos não causam imunodeficiência na produção de anticorpos.",
+                    E: "Incorreta. Candida faz parte da microbiota normal em pequenas quantidades."
+                }
+            },
+            {
+                text: "Plasmolildo, 30 anos, apresentou infecção viral. A biópsia de fígado mostrou células grandes da resposta inata com grânulos citotóxicos, capazes de destruir hepatócitos infectados sem reconhecimento prévio de um antígeno específico ou presença de MHC. Que célula está em ação?",
+                options: [
+                    { id: 'A', text: "Célula Natural Killer (NK)" },
+                    { id: 'B', text: "Linfócito B" },
+                    { id: 'C', text: "Plasmócito" },
+                    { id: 'D', text: "Eosinófilo" },
+                    { id: 'E', text: "Mastócito" }
+                ],
+                answer: 'A',
+                explanation: {
+                    main: "As células Natural Killer (NK) são linfócitos da imunidade inata. Elas patrulham o corpo e induzem apoptose em células infectadas por vírus ou células tumorais sem a necessidade de apresentação prévia de antígeno e frequentemente focando em células que perderam a expressão de MHC de Classe I.",
+                    A: "Correta. As células NK exercem citotoxicidade inata direta contra células infectadas por vírus.",
+                    B: "Incorreta. Linfócitos B produzem anticorpos, não fazem citotoxicidade direta.",
+                    C: "Incorreta. Plasmócitos são linfócitos B ativados que secretam imunoglobulinas.",
+                    D: "Incorreta. Eosinófilos atuam contra parasitas maiores (helmintos).",
+                    E: "Incorreta. Mastócitos liberam histamina na inflamação e alergia."
+                }
+            }
+        ];
+
+        let currentQIndex = 0;
+        let correctCount = 0;
+        let answered = false;
+
+        function startQuiz() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('explanation-box').classList.add('hidden');
+            
+            document.getElementById('current-q-num').innerText = currentQIndex + 1;
+            
+            // Update Progress Bar
+            const progress = ((currentQIndex) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            const q = questions[currentQIndex];
+            document.getElementById('question-text').innerText = q.text;
+            
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-lg border-2 border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition font-medium text-gray-700 shadow-sm';
+                btn.innerText = `${opt.id}) ${opt.text}`;
+                btn.onclick = () => selectAnswer(opt.id, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedId, btnElement) {
+            if (answered) return;
+            answered = true;
+            
+            const q = questions[currentQIndex];
+            const isCorrect = selectedId === q.answer;
+            
+            // Highlight buttons
+            const allBtns = document.getElementById('options-container').children;
+            for (let btn of allBtns) {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'shadow-sm');
+                
+                if (btn.innerText.startsWith(q.answer)) {
+                    btn.classList.remove('border-gray-200');
+                    btn.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                } else if (btn.innerText.startsWith(selectedId) && !isCorrect) {
+                    btn.classList.remove('border-gray-200');
+                    btn.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            }
+
+            if (isCorrect) correctCount++;
+            document.getElementById('score-display').innerText = `Acertos: ${correctCount}`;
+
+            // Show explanation
+            const expBox = document.getElementById('explanation-box');
+            expBox.classList.remove('hidden');
+            expBox.innerHTML = `
+                <div class="font-bold text-base mb-2 p-2 rounded ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    Sua resposta: ${selectedId} — ${isCorrect ? 'Correta!' : 'Incorreta.'}
+                </div>
+                <p class="font-bold text-gray-800 mb-2">Alternativa Correta: ${q.answer}</p>
+                <p class="text-gray-800 mb-3"><span class="font-semibold text-blue-800">Por que a correta está certa:</span> ${q.explanation.main}</p>
+                <hr class="border-gray-300 my-2">
+                <p class="font-semibold text-gray-700 mt-2">Análise das alternativas:</p>
+                <ul class="space-y-2 mt-2 ml-1 text-xs sm:text-sm">
+                    <li><strong class="text-gray-900">A:</strong> ${q.explanation.A}</li>
+                    <li><strong class="text-gray-900">B:</strong> ${q.explanation.B}</li>
+                    <li><strong class="text-gray-900">C:</strong> ${q.explanation.C}</li>
+                    <li><strong class="text-gray-900">D:</strong> ${q.explanation.D}</li>
+                    <li><strong class="text-gray-900">E:</strong> ${q.explanation.E}</li>
+                </ul>
+            `;
+
+            document.getElementById('next-btn').classList.remove('hidden');
+            
+            // Scroll para o botão de próxima
+            setTimeout(() => {
+                document.getElementById('next-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-correct').innerText = correctCount;
+            
+            const score = ((correctCount / questions.length) * 10).toFixed(1);
+            const scoreSpan = document.getElementById('final-score');
+            scoreSpan.innerText = score;
+            
+            if (score >= 7) {
+                scoreSpan.className = "text-green-600";
+            } else if (score >= 5) {
+                scoreSpan.className = "text-yellow-600";
+            } else {
+                scoreSpan.className = "text-red-600";
+            }
+        }
+    </script>
+</body>
+</html>
